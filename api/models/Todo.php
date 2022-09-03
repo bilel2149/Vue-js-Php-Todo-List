@@ -179,7 +179,7 @@ class Todo
         $stmt->bindParam(':status', $this->status);
         if ($stmt->execute()) {
             // Create query
-            $query = 'UPDATE ' . $this->table . ' status = 1';
+            $query = 'UPDATE ' . $this->table . ' status = 2';
             // Prepare statement
             $stmt = $this->conn->prepare($query);
             // Bind data

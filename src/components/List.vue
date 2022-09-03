@@ -8,8 +8,12 @@
       </template>
       <b-card-text>
         <ul class="list-items">
-            <li v-for="item in items" :key="item.id">
+            <li v-for="item in items" :key="item.id" class="d-flex justify-content-between">
                 {{item.title}}
+                <div class="actions" v-if="!item.inprogress">
+                    <b-icon icon="check-lg" aria-hidden="true" class="me-2" v-if="item.status == 1" @click="validate(item.id)"></b-icon>
+                    <b-icon icon="trash-fill" aria-hidden="true" @click="deleteItem(item.id)"></b-icon>
+                </div>
             </li>
         </ul>
       </b-card-text>
@@ -35,6 +39,12 @@ export default {
     }
   },
   methods: {
+    validate(id){
+        this.$emit ('validate', id);
+    },
+    deleteItem(id){
+        this.$emit ('delete', id);
+    }
   }
 }
 </script>

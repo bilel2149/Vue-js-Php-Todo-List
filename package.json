@@ -13,6 +13,7 @@
         "bootstrap-vue": "^2.22.0",
         "core-js": "^3.6.4",
         "lodash.uniqueid": "^4.0.1",
+        "sweetalert2": "^11.4.29",
         "vue": "^2.7.10",
         "vuelidate": "^0.7.7"
     },

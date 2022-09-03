@@ -3,19 +3,23 @@
     <b-container class="bv-example-row">
         <b-row class="mt-4 mb-4">
            <b-col>
-               <b-button v-b-modal.modal-create v-if="!isAdded">Create</b-button> 
+               <b-button v-b-modal.modal-create class="me-2">Create</b-button> 
                <b-button class="me-2" v-if="isAdded" @click="validateSubmit()">Validate</b-button> 
-               <b-button v-if="isAdded" @click="cancelValidate()">Cancel</b-button> 
+               <b-button v-if="isAdded" @click="cancelValidate()">Cancel</b-button>
+               <b-button class="me-2" v-if="isDeleted" @click="validateDelete()">Validate</b-button> 
+               <b-button v-if="isDeleted" @click="cancelDelete()">Cancel</b-button>
+               <b-button class="me-2" v-if="isTerminated" @click="validateTerminate()">Validate</b-button> 
+               <b-button v-if="isTerminated" @click="cancelTerminate()">Cancel</b-button> 
             </b-col> 
         </b-row>
         <b-row>
             <b-col>
                 <!--List active-->
-                <list :title="'ToDo Active'" :total="totalActive" :items="listActive"></list>
+                <list :title="'ToDo Active'" :total="totalActive" :items="listActive" v-on:validate="setValidate" v-on:delete="deleteItem"></list>
             </b-col>
             <b-col>
                 <!--List completed-->
-                <list :title="'ToDo Terminated'" :total="totalCompleted" :items="listCompleted"></list>
+                <list :title="'ToDo Terminated'" :total="totalCompleted" :items="listCompleted" v-on:delete="deleteItem"></list>
             </b-col>
         </b-row>
 
@@ -73,7 +77,10 @@ export default {
         title: '',
         description: ''
       },
-      isAdded : false
+      isAdded : false,
+      isDeleted: false,
+      isTerminated: false,
+      selectedElement: null
     };
   },
   mixins: [validationMixin],
@@ -112,6 +119,7 @@ export default {
     onSubmitCreate(){
         this.$v.$touch ();
         if (!this.$v.$invalid) {
+            this.item.inprogress = true;
             this.listActive.push(this.item);
             this.$bvModal.hide('modal-create');
             this.$v.$reset ();
@@ -130,17 +138,85 @@ export default {
 
     validateSubmit(){
         axios
-      .post('http://localhost/vue-js-php-todo-list/api/create/task', this.item, {
-        headers: {
-            "Access-Control-Allow-Origin": "*",
-        }
-      })
+      .post('http://localhost/vue-js-php-todo-list/api/create/task', this.item)
       .then(response => {
         this.getList();
       })
       .catch(err => {
         console.log(err)
       });
+    },
+    cancelDelete(){
+        this.isDeleted = false;
+    },
+    validateDelete(){
+
+        const Swal = require('sweetalert2');
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-sucess',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: true
+        })
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sur to delete this item',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                .delete('http://localhost/vue-js-php-todo-list/api/delete/' + this.selectedElement)
+                .then(response => {
+                    swalWithBootstrapButtons.fire(
+                        'item deleted',
+                        '',
+                        'success'
+                    )
+                    this.getList();
+                })
+                .catch(err => {
+                    console.log(err)
+                });
+            }
+        })
+
+
+        axios
+        .delete('http://localhost/vue-js-php-todo-list/api/delete/' + this.selectedElement)
+        .then(response => {
+            this.getList();
+        })
+        .catch(err => {
+            console.log(err)
+        });
+    },
+    cancelTerminate(){
+        this.isTerminated = false;
+    },
+    validateTerminate(){
+        axios
+        .put('http://localhost/vue-js-php-todo-list/api/update', {
+            "id": this.selectedElement,
+            "status":2
+        })
+        .then(response => {
+            this.getList();
+        })
+        .catch(err => {
+            console.log(err)
+        });
+    },
+    setValidate(value){
+        this.selectedElement = value;
+        this.isTerminated = true;
+    },
+    deleteItem(value){
+        this.selectedElement = value;
+        this.isDeleted = true;
     }
   },
 };
