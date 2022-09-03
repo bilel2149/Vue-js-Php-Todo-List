@@ -12,11 +12,8 @@ class Todo
     // Todo Properties
     public $id;
     public $title;
+    public $description;
     public $status;
-    public $from;
-    public $to;
-    public $PosFrom;
-    public $PosTo;
 
     // Constructor with DB
     public function __construct($db)
@@ -122,19 +119,20 @@ class Todo
 
         // Prepare statement
         $stmtFind = $this->conn->prepare($query);
-
         // Clean data
         $this->id = filter_var($this->id, FILTER_SANITIZE_NUMBER_INT);
         // Bind data
         $stmtFind->bindParam(':id', $this->id);
+        
         // Execute query
         if ($stmtFind->execute() and $stmtFind->rowCount() > 0) {
+            
             // Create query
             $query = 'UPDATE  ' . $this->table . ' WHERE status = :status';
 
             // Prepare statement
             $stmtUpdate = $this->conn->prepare($query);
-
+            
             // Clean data
             $this->status = filter_var($this->status, FILTER_SANITIZE_NUMBER_INT);
 
@@ -144,7 +142,7 @@ class Todo
             // Execute query
             if ($stmtUpdate->execute()) {
                 $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
-
+                
                 // Prepare statement
                 $stmt = $this->conn->prepare($query);
 
@@ -162,7 +160,6 @@ class Todo
             }
 
         }
-
 
         return false;
     }

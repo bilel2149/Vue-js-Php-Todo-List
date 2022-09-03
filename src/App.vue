@@ -45,10 +45,10 @@
                 </b-form-group>
             </form>
             <template #modal-footer>
-                <b-button variant="danger" @click="cancel()">
+                <b-button variant="outline-light" @click="cancel()">
                     Cancel
                 </b-button>
-                <b-button type="submit" variant="success" @click="onSubmitCreate()">
+                <b-button type="submit" variant="light" @click="onSubmitCreate()">
                     Add
                 </b-button>
             </template>
@@ -138,9 +138,11 @@ export default {
 
     validateSubmit(){
         axios
-      .post('http://localhost/vue-js-php-todo-list/api/create/task', this.item)
+      .post('http://localhost/vue-js-php-todo-list/api/create/task/',{ item: this.item })
       .then(response => {
-        this.getList();
+        if (response.status === 200) {
+          this.getList();
+        }
       })
       .catch(err => {
         console.log(err)
@@ -169,42 +171,38 @@ export default {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                .delete('http://localhost/vue-js-php-todo-list/api/delete/' + this.selectedElement)
+                .delete('http://localhost/vue-js-php-todo-list/api/delete.php', {
+                    id: this.selectedElement
+                })
                 .then(response => {
-                    swalWithBootstrapButtons.fire(
-                        'item deleted',
-                        '',
-                        'success'
-                    )
-                    this.getList();
+                    if (response.data.status === 200) {
+                        swalWithBootstrapButtons.fire(
+                            'item deleted',
+                            '',
+                            'success'
+                        )
+                        this.getList();
+                    }
                 })
                 .catch(err => {
                     console.log(err)
                 });
             }
         })
-
-
-        axios
-        .delete('http://localhost/vue-js-php-todo-list/api/delete/' + this.selectedElement)
-        .then(response => {
-            this.getList();
-        })
-        .catch(err => {
-            console.log(err)
-        });
     },
     cancelTerminate(){
         this.isTerminated = false;
     },
     validateTerminate(){
         axios
-        .put('http://localhost/vue-js-php-todo-list/api/update', {
+        .put('http://localhost/vue-js-php-todo-list/api/update.php', {
             "id": this.selectedElement,
             "status":2
         })
         .then(response => {
-            this.getList();
+            if (response.data.status === 200) {
+                this.getList();
+            }
         })
         .catch(err => {
             console.log(err)
@@ -224,4 +222,23 @@ export default {
 
 
 <style>
+.modal-header .close{
+    background: transparent;
+    border: 0;
+    font-size: 25px;
+}
+.modal-title{
+    text-transform: uppercase;
+}
+.modal-body form{
+    background: #f0f0f0;
+    padding: 10px;
+}
+.modal-footer{
+    background: #19266e;
+}
+.modal-footer .btn{
+    border-radius: 25px;
+    padding: 5px 25px;
+}
 </style>

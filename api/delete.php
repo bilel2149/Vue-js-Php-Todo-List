@@ -14,13 +14,10 @@ $db = $database->connect();
 $output = array();
 // Instantiate Todo object
 $todo = new Todo($db);
-
 // Get raw posted data
 $data = json_decode(file_get_contents("php://input"));
-
 // Set ID to update
 $todo->id = $data->id;
-
 // Delete Task
 if ($todo->delete()) {
     $output['status'] = 200;

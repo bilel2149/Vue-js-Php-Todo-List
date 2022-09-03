@@ -19,19 +19,13 @@ $todo = new Todo($db);
 $data = json_decode(file_get_contents("php://input"));
 if (isset($data->id) AND isset($data->status)) {
     $todo->id = $data->id;
-    $todo->todoStatu = $data->status;
+    $todo->status = $data->status;
+    
     // Update post
-    if ($data->status == 1) {
-        if ($todo->markAsUncompleted()) {
-            $output['status'] = 200;
-            $output['message'] = "Task  Uncompleted";
-        } else {
-            $output['status'] = 204;
-            $output['message'] = "Task Not Uncompleted";
-        }
-    } elseif ($data->status == 2) {
-
+    if ($data->status == 2) {
+        $todo->markAsCompleted();
         if ($todo->markAsCompleted()) {
+            
             $output['status'] = 200;
             $output['message'] = "Task  Completed";
         } else {
